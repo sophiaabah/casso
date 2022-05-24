@@ -1,3 +1,6 @@
+// page for redirecting. With a modal you'll design. same as the previous page i guess.
+// use that opportunity to grab and load info
+
 import {
   Box,
   Flex,
@@ -24,18 +27,11 @@ import { FaDeezer } from "react-icons/fa";
 import Script from "next/dist/client/script";
 import { useEffect } from "react";
 import password from "secure-random-password";
-import { useState } from "react";
 
-var spotifyOauth = {
-  client_id: "902a724362ca4f1cad165d28c65cb6f9",
-  redirect_uri: "http://localhost:3000/callback",
-  state: password.randomString({ length: 16 }),
-  scope: "playlist-read-collaborative playlist-modify-public",
-};
+var client_id = "902a724362ca4f1cad165d28c65cb6f9";
+var redirect_uri = "https://localhost:3000/callback";
 
 export default function App() {
-  const [linkInput, setLinkInput] = useState("");
-
   // useEffect(() => {
   //   if (global.DZ) {
   //     global.DZ.init({
@@ -50,63 +46,48 @@ export default function App() {
   //   console.log("package", global.DZ);
   // }, []);
 
-  function onSubmit() {
-    console.log("working with link");
-    if (linkInput.includes("spotify")) {
-      console.log("its a link from spotify", linkInput);
-      var playlistId = linkInput.slice(
-        linkInput.lastIndexOf("/") + 1,
-        linkInput.indexOf("?")
+  // function dzScriptInit() {
+  //   console.log("hi");
+  //   // global.DZ.init({
+  //   //   appId: "542982",
+  //   //   channelUrl: "http://localhost:3000",
+  //   // });
+  //   // global.DZ.api("/playlist/8101606082", function (response) {
+  //   //   console.log("fetched data:", response.tracks);
+  //   // });
+  // }
+
+  useEffect(() => {
+    var id = localStorage.getItem("playlistId");
+    const pageUrl = window.location.href;
+    const accessToken = pageUrl.slice(
+      pageUrl.indexOf("token=") + 6,
+      pageUrl.indexOf("&token_type")
+    );
+    console.log(accessToken);
+    async function spotifyRequest() {
+      const resource = await fetch(
+        `https://api.spotify.com/v1/playlists/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
       );
-      localStorage.setItem("playlistId", playlistId);
-      return spotifyInit();
+      const loadedResource = await resource.json();
+      console.log(loadedResource);
     }
-    if (linkInput.includes("deezer")) {
-      console.log("its a link from deezer", linkInput);
-      var playlistId = linkInput.slice(linkInput.lastIndexOf("/") + 1);
-      console.log(playlistId);
-      return dzRequest(playlistId);
-    }
-  }
-
-  function spotifyInit() {
-    // var client_id = "902a724362ca4f1cad165d28c65cb6f9";
-    // var redirect_uri = "http://localhost:3000/callback";
-    // var state = password.randomString({ length: 16 });
-    // var scope =
-    //   "playlist-read-collaborative playlist-modify-public"; /*user-read-private user-read-email playlist-read-private playlist-modify-private*/
-    // // console.log(scope);
-    localStorage.setItem("stateKey", spotifyOauth.state);
-    window.location = `https://accounts.spotify.com/authorize?response_type=token&client_id=${spotifyOauth.client_id}&scope=${spotifyOauth.scope}&redirect_uri=${spotifyOauth.redirect_uri}&state=${spotifyOauth.state}`;
-  }
-
-  function dzScriptInit() {
-    global.DZ.init({
-      appId: "542982",
-      channelUrl: "http://localhost:3000",
-    });
-    console.log("sdk load successful");
-  }
-
-  function dzRequest(id) {
-    console.log("running deezer request");
-    global.DZ.api(`/playlist/${id}`, function (response) {
-      console.log("fetched data:", response);
-    });
-  }
-
-  function onType(e) {
-    setLinkInput(e.target.value);
-  }
+    spotifyRequest();
+  }, []);
 
   return (
     <Container maxW="container.xl">
-      <div id="dz-root"></div>
-      <Script
+      {/* <div id="dz-root"></div> */}
+      {/* <Script
         src="https://e-cdn-files.dzcdn.net/js/min/dz.js"
         strategy="afterInteractive"
         onLoad={dzScriptInit}
-      ></Script>
+      ></Script> */}
       <Stack height="100vh">
         <VStack
           width={{ md: "45%" }}
@@ -143,25 +124,23 @@ export default function App() {
               borderRadius="full"
               p={9}
               icon={<FaSpotify fontSize={32} />}
-              // onClick={}
+              // onClick={spotifyInit}
             ></IconButton>
           </ButtonGroup>
           <HStack width="100%" spacing={4}>
             <Input
-              onChange={onType}
               focusBorderColor="blue.200"
               height={{ base: 12, lg: 16 }}
               placeholder="Paste your link..."
             ></Input>
             <Button
-              onClick={onSubmit}
               colorScheme="blue"
               p={{ base: "6", lg: 8 }}
             >{`Let's go`}</Button>
           </HStack>
         </VStack>
         <chakra.div display={{ base: "none", md: "none", lg: "block" }}>
-          <Image
+          {/* <Image
             alt="taylor swift"
             src="/images/taylor.png"
             width="16%"
@@ -185,7 +164,7 @@ export default function App() {
             position="fixed"
             right={0}
             bottom={0}
-          ></Image>
+          ></Image> */}
         </chakra.div>
       </Stack>
     </Container>
