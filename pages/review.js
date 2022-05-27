@@ -20,11 +20,23 @@ import {
 } from "@chakra-ui/react";
 import Head from "next/head";
 import { BsThreeDots } from "react-icons/bs";
-import SongList from "./components/songlist";
+import { useRouter } from "next/router";
+import Script from "next/script";
+
+function dzRequest(id) {}
 
 export default function App() {
+  const router = useRouter();
+  const { link } = router.query;
+
   return (
     <Container maxW="container.lg" pt={{ md: 12 }}>
+      <div id="dz-root"></div>
+      <Script
+        src="https://e-cdn-files.dzcdn.net/js/min/dz.js"
+        strategy="afterInteractive"
+        onLoad={dzScriptInit}
+      ></Script>
       <Stack
         direction={{ base: "column", md: "row" }}
         p={{ base: 5, md: 4 }}

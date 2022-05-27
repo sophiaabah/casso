@@ -36,20 +36,6 @@ var spotifyOauth = {
 export default function App() {
   const [linkInput, setLinkInput] = useState("");
 
-  // useEffect(() => {
-  //   if (global.DZ) {
-  //     global.DZ.init({
-  //       appId: "542982",
-  //       channelUrl: "http://localhost:3000",
-  //     });
-  //     global.DZ.api("/playlist/8101606082", function (response) {
-  //       console.log("playlist", response.tracks);
-  //     });
-  //   }
-
-  //   console.log("package", global.DZ);
-  // }, []);
-
   function onSubmit() {
     console.log("working with link");
     if (linkInput.includes("spotify")) {
@@ -65,17 +51,12 @@ export default function App() {
       console.log("its a link from deezer", linkInput);
       var playlistId = linkInput.slice(linkInput.lastIndexOf("/") + 1);
       console.log(playlistId);
-      return dzRequest(playlistId);
+      localStorage.setItem("playlistId", playlistId);
+      spotifyInit();
     }
   }
 
   function spotifyInit() {
-    // var client_id = "902a724362ca4f1cad165d28c65cb6f9";
-    // var redirect_uri = "http://localhost:3000/callback";
-    // var state = password.randomString({ length: 16 });
-    // var scope =
-    //   "playlist-read-collaborative playlist-modify-public"; /*user-read-private user-read-email playlist-read-private playlist-modify-private*/
-    // // console.log(scope);
     localStorage.setItem("stateKey", spotifyOauth.state);
     window.location = `https://accounts.spotify.com/authorize?response_type=token&client_id=${spotifyOauth.client_id}&scope=${spotifyOauth.scope}&redirect_uri=${spotifyOauth.redirect_uri}&state=${spotifyOauth.state}`;
   }
