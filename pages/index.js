@@ -27,8 +27,8 @@ import password from "secure-random-password";
 import { useState } from "react";
 
 var spotifyOauth = {
-  client_id: "902a724362ca4f1cad165d28c65cb6f9",
-  redirect_uri: "http://localhost:3000/callback",
+  client_id: process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID,
+  redirect_uri: process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI,
   state: password.randomString({ length: 16 }),
   scope: "playlist-read-collaborative playlist-modify-public",
 };
@@ -63,8 +63,8 @@ export default function App() {
 
   function dzScriptInit() {
     global.DZ.init({
-      appId: "542982",
-      channelUrl: "http://localhost:3000",
+      appId: process.env.NEXT_PUBLIC_DEEZER_APP_ID,
+      channelUrl: process.env.NEXT_PUBLIC_DEEZER_CHANNEL_URL,
     });
     console.log("sdk load successful");
   }

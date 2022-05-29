@@ -56,8 +56,8 @@ export default function App() {
 
   function dzScriptInit() {
     global.DZ.init({
-      appId: "542982",
-      channelUrl: "http://localhost:3000",
+      appId: process.env.NEXT_PUBLIC_DEEZER_APP_ID,
+      channelUrl: process.env.NEXT_PUBLIC_DEEZER_CHANNEL_URL,
     });
     console.log("sdk load successful");
 
@@ -65,7 +65,7 @@ export default function App() {
       const playlistId = localStorage.getItem("playlistId");
       exportFromDz(playlistId);
     } else {
-      // the function to fetch from deezer and start export to spotify
+      // the function to fetch from spotify and start export to deezer
     }
   }
 
@@ -128,6 +128,7 @@ export default function App() {
 
   async function migrateToSpotify() {
     const accessToken = localStorage.getItem("token");
+
     let userInfo = await fetch(`https://api.spotify.com/v1/me`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -136,8 +137,6 @@ export default function App() {
     });
     let parsedUserInfo = await userInfo.json();
     console.log(parsedUserInfo.id);
-
-    // let playlistId;
 
     async function createPlaylist() {
       const newPlaylistInfo = await fetch(
@@ -160,7 +159,7 @@ export default function App() {
       console.log("this is it", playlistId);
       addTracksToPlaylist(playlistId);
     }
-    createPlaylist(); // access playlistid in last function
+    createPlaylist();
 
     async function addTracksToPlaylist(playlistId) {
       const confirmation = await fetch(
@@ -299,4 +298,4 @@ export default function App() {
   );
 }
 
-//  what do i do about the variables i have to redeclare within each new scope?
+//  what do i do about the variables i need to grab within another scope?
