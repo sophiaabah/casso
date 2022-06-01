@@ -45,12 +45,15 @@ export default function App() {
         linkInput.indexOf("?")
       );
       localStorage.setItem("playlistId", playlistId);
+      localStorage.setItem("url", linkInput);
       return spotifyInit();
     }
     if (linkInput.includes("deezer")) {
       console.log("its a link from deezer", linkInput);
+      localStorage.setItem("url", linkInput);
       var playlistId = linkInput.slice(linkInput.lastIndexOf("/") + 1);
       console.log(playlistId);
+
       localStorage.setItem("playlistId", playlistId);
       spotifyInit();
     }
@@ -67,13 +70,6 @@ export default function App() {
       channelUrl: process.env.NEXT_PUBLIC_DEEZER_CHANNEL_URL,
     });
     console.log("sdk load successful");
-  }
-
-  function dzRequest(id) {
-    console.log("running deezer request");
-    global.DZ.api(`/playlist/${id}`, function (response) {
-      console.log("fetched data:", response);
-    });
   }
 
   function onType(e) {
