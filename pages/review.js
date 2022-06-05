@@ -179,7 +179,7 @@ export default function App() {
     addTracksToPlaylist(playlistId, accessToken, uriArr);
   }
 
-  return songsLoaded ? (
+  return (
     <Container maxW="container.lg" pt={{ md: 12 }}>
       <div id="dz-root"></div>
       <Script
@@ -187,108 +187,102 @@ export default function App() {
         strategy="afterInteractive"
         onLoad={dzScriptInit}
       ></Script>
-      <Stack
-        direction={{ base: "column", md: "row" }}
-        p={{ base: 5, md: 4 }}
-        pt={{ md: 16 }}
-        spacing={{ base: 12, md: 20 }}
-      >
-        <Stack flex={1} spacing={6} direction="column" align="left">
-          <chakra.div>
-            <Image
-              borderRadius={4}
-              width="100%"
-              alt="playlist cover"
-              src={playlist.picture}
-            ></Image>
-          </chakra.div>
-
-          <Stack direction="column" align="left">
-            <VStack spacing={1} align="left">
-              <Text fontWeight="300" color="mygray.900" fontSize="24">
-                Playlist Review
-              </Text>
-              <Text fontWeight="500" fontSize="36">
-                {playlist.title}
-              </Text>
-              <Text fontWeight="400" fontSize="17">
-                {`By ${playlist.owner}`}
-              </Text>
-              <Text fontWeight="300" fontSize="15">
-                {`${playlist.duration}mins`}
-              </Text>
-            </VStack>
-          </Stack>
-          <Stack w="100%" direction="row" spacing={4}>
-            <Button w="100%" colorScheme="blue" onClick={onExport}>
-              Export
-            </Button>
-            <Button w="100%" colorScheme="blue" variant="outline">
-              Cancel
-            </Button>
-          </Stack>
-        </Stack>
-
+      {songsLoaded ? (
         <Stack
-          flex={2}
-          w="100%"
-          // p={{ base: "0rem", lg: "1rem" }}
-          spacing={5}
-          // justify={{ base: "center" }}
-          // align={{ base: "center", md: "left" }}
+          direction={{ base: "column", md: "row" }}
+          p={{ base: 5, md: 4 }}
+          pt={{ md: 16 }}
+          spacing={{ base: 12, md: 20 }}
         >
-          {playlist.tracks.map((item, index) => {
-            return (
-              <Stack
-                w="100%"
-                direction="row"
-                align="center"
-                key={index}
-                spacing={6}
-                justify="space-between"
-              >
-                <Stack direction="row" spacing={3} align="center">
-                  <chakra.div>
-                    <Image
-                      borderRadius={4}
-                      alt="song cover"
-                      src={item.picture}
-                    ></Image>
-                  </chakra.div>
-                  <Stack spacing={0}>
-                    <Text fontWeight={600} fontSize="16">
-                      {item.title}
+          <Stack flex={1} spacing={6} direction="column" align="left">
+            <chakra.div>
+              <Image
+                borderRadius={4}
+                width="100%"
+                alt="playlist cover"
+                src={playlist.picture}
+              ></Image>
+            </chakra.div>
+
+            <Stack direction="column" align="left">
+              <VStack spacing={1} align="left">
+                <Text fontWeight="300" color="mygray.900" fontSize="24">
+                  Playlist Review
+                </Text>
+                <Text fontWeight="500" fontSize="36">
+                  {playlist.title}
+                </Text>
+                <Text fontWeight="400" fontSize="17">
+                  {`By ${playlist.owner}`}
+                </Text>
+                <Text fontWeight="300" fontSize="15">
+                  {`${playlist.duration}mins`}
+                </Text>
+              </VStack>
+            </Stack>
+            <Stack w="100%" direction="row" spacing={4}>
+              <Button w="100%" colorScheme="blue" onClick={onExport}>
+                Export
+              </Button>
+              <Button w="100%" colorScheme="blue" variant="outline">
+                Cancel
+              </Button>
+            </Stack>
+          </Stack>
+
+          <Stack
+            flex={2}
+            w="100%"
+            // p={{ base: "0rem", lg: "1rem" }}
+            spacing={5}
+            // justify={{ base: "center" }}
+            // align={{ base: "center", md: "left" }}
+          >
+            {playlist.tracks.map((item, index) => {
+              return (
+                <Stack
+                  w="100%"
+                  direction="row"
+                  align="center"
+                  key={index}
+                  spacing={6}
+                  justify="space-between"
+                >
+                  <Stack direction="row" spacing={3} align="center">
+                    <chakra.div>
+                      <Image
+                        borderRadius={4}
+                        alt="song cover"
+                        src={item.picture}
+                      ></Image>
+                    </chakra.div>
+                    <Stack spacing={0}>
+                      <Text fontWeight={600} fontSize="16">
+                        {item.title}
+                      </Text>
+                      <Text color="mygray.900" fontWeight={400} fontSize="15">
+                        {item.artist}
+                      </Text>
+                    </Stack>
+                  </Stack>
+                  <Stack align="center" direction="row">
+                    <Text fontWeight={400} fontSize="15">
+                      {item.duration}
                     </Text>
-                    <Text color="mygray.900" fontWeight={400} fontSize="15">
-                      {item.artist}
-                    </Text>
+                    <IconButton
+                      variant="ghost"
+                      fontSize="sm"
+                      icon={<BsThreeDots />}
+                    />
                   </Stack>
                 </Stack>
-                <Stack align="center" direction="row">
-                  <Text fontWeight={400} fontSize="15">
-                    {item.duration}
-                  </Text>
-                  <IconButton
-                    variant="ghost"
-                    fontSize="sm"
-                    icon={<BsThreeDots />}
-                  />
-                </Stack>
-              </Stack>
-            );
-          })}
+              );
+            })}
+          </Stack>
         </Stack>
-      </Stack>
-    </Container>
-  ) : (
-    <Container maxW="container.lg" pt={{ md: 12 }}>
-      <div id="dz-root"></div>
-      <Script
-        src="https://e-cdn-files.dzcdn.net/js/min/dz.js"
-        strategy="afterInteractive"
-        onLoad={dzScriptInit}
-      ></Script>
-      <div>Nothing here yet</div>
+      ) : (
+        <div>Nothing here yet</div>
+      )}
     </Container>
   );
 }

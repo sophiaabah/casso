@@ -9,18 +9,18 @@ var dzOauth = {
 export default function App() {
   const [playlist, setPlaylist] = useState({});
 
-  useEffect(() => {
-    console.log("working on dz oauth");
-    setPlaylist(JSON.parse(localStorage.getItem("songs")));
-    const pageUrl = window.location.href;
-    const accessToken = pageUrl.slice(
-      pageUrl.indexOf("token=") + 6,
-      pageUrl.indexOf("&expires")
-    );
-    console.log(accessToken);
-    localStorage.setItem("dz_token", accessToken);
-    // searchForTracks();
-  }, []);
+  // useEffect(() => {
+  //   console.log("working on dz oauth");
+  //   setPlaylist(JSON.parse(localStorage.getItem("songs")));
+  //   const pageUrl = window.location.href;
+  //   const accessToken = pageUrl.slice(
+  //     pageUrl.indexOf("token=") + 6,
+  //     pageUrl.indexOf("&expires")
+  //   );
+  //   console.log(accessToken);
+  //   localStorage.setItem("dz_token", accessToken);
+  //   // searchForTracks();
+  // }, []);
 
   async function searchForTracks() {
     const accessToken = localStorage.getItem("dz_token");
