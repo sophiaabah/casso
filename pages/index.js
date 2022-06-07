@@ -25,6 +25,8 @@ import Script from "next/dist/client/script";
 import { useEffect } from "react";
 import password from "secure-random-password";
 import { useState } from "react";
+import PopupWindow, { toQuery } from "./popup";
+import { useRouter } from "next/router";
 
 var spotifyOauth = {
   client_id: process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID,
@@ -34,35 +36,49 @@ var spotifyOauth = {
 };
 
 export default function App() {
+  const router = useRouter();
   const [linkInput, setLinkInput] = useState("");
+  const [platform, setPlatform] = useState();
 
-  function onSubmit() {
+  async function onSubmit() {
     console.log("working with link");
-    if (linkInput.includes("spotify")) {
-      console.log("its a link from spotify", linkInput);
-      var playlistId = linkInput.slice(
-        linkInput.lastIndexOf("/") + 1,
-        linkInput.indexOf("?")
+    if (linkInput.trim()) {
+      const access_data = await spotifyLogin();
+
+      localStorage.setItem("session_token", access_data.access_token);
+      router.push({
+        pathname: "/review",
+        query: { pid: linkInput, inputPlatform: platform },
+      });
+    }
+  }
+
+  // function spotifyInit() {
+  //   localStorage.setItem("stateKey", spotifyOauth.state);
+  //   window.location = `https://accounts.spotify.com/authorize?response_type=token&client_id=${spotifyOauth.client_id}&scope=${spotifyOauth.scope}&redirect_uri=${spotifyOauth.redirect_uri}&state=${spotifyOauth.state}`;
+  // }
+
+  const spotifyLogin = async () => {
+    try {
+      const data = await PopupWindow.open(
+        "spotify-oauth-auth",
+        `https://accounts.spotify.com/authorize?${toQuery({
+          client_id: spotifyOauth.client_id,
+          response_type: "token",
+          redirect_uri: spotifyOauth.redirect_uri,
+          scope: spotifyOauth.scope,
+        })}`,
+        {
+          height: 800,
+          width: 600,
+        }
       );
-      localStorage.setItem("playlistId", playlistId);
-      localStorage.setItem("url", linkInput);
-      return spotifyInit();
-    }
-    if (linkInput.includes("deezer")) {
-      console.log("its a link from deezer", linkInput);
-      localStorage.setItem("url", linkInput);
-      var playlistId = linkInput.slice(linkInput.lastIndexOf("/") + 1);
-      console.log(playlistId);
 
-      localStorage.setItem("playlistId", playlistId);
-      spotifyInit();
+      return data;
+    } catch (e) {
+      console.error(e);
     }
-  }
-
-  function spotifyInit() {
-    localStorage.setItem("stateKey", spotifyOauth.state);
-    window.location = `https://accounts.spotify.com/authorize?response_type=token&client_id=${spotifyOauth.client_id}&scope=${spotifyOauth.scope}&redirect_uri=${spotifyOauth.redirect_uri}&state=${spotifyOauth.state}`;
-  }
+  };
 
   function dzScriptInit() {
     global.DZ.init({
@@ -112,15 +128,22 @@ export default function App() {
           </Text>
           <ButtonGroup pt={8} pb={8} spacing={8}>
             <IconButton
+              variant="outline"
+              colorScheme="blue"
+              onClick={() => setPlatform("deezer")}
               borderRadius="full"
               p={9}
+              isActive={platform === "deezer"}
               icon={<FaDeezer fontSize={32} />}
             ></IconButton>
             <IconButton
+              variant="outline"
+              colorScheme="blue"
+              onClick={() => setPlatform("spotify")}
               borderRadius="full"
               p={9}
+              isActive={platform === "spotify"}
               icon={<FaSpotify fontSize={32} />}
-              // onClick={}
             ></IconButton>
           </ButtonGroup>
           <HStack width="100%" spacing={4}>
@@ -131,6 +154,7 @@ export default function App() {
               placeholder="Paste your link..."
             ></Input>
             <Button
+              isDisabled={!(platform === "spotify" || platform === "deezer")}
               onClick={onSubmit}
               colorScheme="blue"
               p={{ base: "6", lg: 8 }}

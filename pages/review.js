@@ -2,11 +2,14 @@ import {
   Box,
   Flex,
   Image,
+  Wrap,
+  WrapItem,
   Center,
   Spacer,
   Input,
   HStack,
   Button,
+  useToast,
   Text,
   Stack,
   Heading,
@@ -25,13 +28,44 @@ import password from "secure-random-password";
 import { BsThreeDots } from "react-icons/bs";
 import { migrateToDz } from "../lib/toDeezer";
 import { addTracksToPlaylist, dzPlaylistRequest } from "../lib/toSpotify";
+import { useRouter } from "next/router";
+import { intervalToDuration } from "date-fns";
 
 const uriArr = [];
 
 export default function App() {
-  const [platform, setPlatform] = useState(true);
+  const router = useRouter();
+  const toast = useToast();
+
+  const [platform, setPlatform] = useState("");
   const [songsLoaded, setSongsLoaded] = useState(false);
   const [playlist, setPlaylist] = useState({});
+  const [hasError, setHasError] = useState(false);
+  // const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    console.log("query object", router.query.pid);
+    if (router.query.inputPlatform === "deezer") {
+      exportFromDz(router.query.pid)
+        .then(() => {
+          setHasError(false);
+        })
+        .catch((error) => {
+          console.error(error);
+          setHasError(true);
+        });
+      setPlatform("spotify");
+    } else if (router.query.inputPlatform === "spotify") {
+      exportFromSpotify(router.query.pid)
+        .then(() => {
+          setHasError(false);
+        })
+        .catch((error) => {
+          console.error(error);
+          setPlatform("deezer");
+        });
+    }
+  }, []);
 
   function dzScriptInit() {
     global.DZ.init({
@@ -39,34 +73,49 @@ export default function App() {
       channelUrl: process.env.NEXT_PUBLIC_DEEZER_CHANNEL_URL,
     });
     console.log("sdk load successful");
-
-    const url = localStorage.getItem("url");
-    console.log("this is ur url", url);
-    const playlistId = localStorage.getItem("playlistId");
-
-    if (url.includes("spotify")) {
-      console.log("its a link from spotify", url);
-      exportFromSpotify(playlistId);
-      setPlatform(false);
-    } else if (url.includes("deezer")) {
-      console.log("its a link from deezer", url);
-      exportFromDz(playlistId);
-      setPlatform(true);
-    }
-
-    // console.log("the playlist id", playlistId);
-    // if (platform) {
-    //   exportFromDz(playlistId);
-    // } else if (!platform) {
-    //   exportFromSpotify(playlistId);
-    // }
   }
 
   function onExport() {
-    if (platform) {
-      migrateToSpotify(playlist.title, uriArr);
-    } else {
-      migrateToDz(playlist.tracks, playlist.title);
+    if (platform === "spotify") {
+      migrateToSpotify(playlist.title, uriArr)
+        .then(
+          toast({
+            title: "Migration successful.",
+            description: "We've created your playlist for you.",
+            status: "success",
+            duration: 7000,
+            isClosable: true,
+          })
+        )
+        .catch((error) => {
+          toast({
+            title: "Error.",
+            description: error.message,
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+          });
+        });
+    } else if (platform === "deezer") {
+      migrateToDz(playlist.tracks, playlist.title)
+        .then(
+          toast({
+            title: "Migration successful.",
+            description: "We've created your playlist for you.",
+            status: "success",
+            duration: 7000,
+            isClosable: true,
+          })
+        )
+        .catch((error) => {
+          toast({
+            title: "Error.",
+            description: error.message,
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+          });
+        });
     }
   }
 
@@ -82,18 +131,19 @@ export default function App() {
       tracks: songData.tracks.data.map((track) => ({
         title: track.title,
         artist: track.artist.name,
-        duration: track.duration,
+        duration: intervalToDuration({ start: 0, end: track.duration * 1000 }), //track.duration
         picture: track.album.cover_small,
         album: track.album.title,
       })),
     };
+
     setPlaylist(playlistData);
     console.log("mine:", playlistData);
 
     const tracksArr = playlistData.tracks;
     console.log("mine:", tracksArr);
     const listOfIds = [];
-    const accessToken = localStorage.getItem("token");
+    const accessToken = localStorage.getItem("session_token");
 
     for (let i = 0; i < tracksArr.length; i++) {
       let searchResult = await fetch(
@@ -118,7 +168,7 @@ export default function App() {
   }
 
   async function exportFromSpotify(id) {
-    const accessToken = localStorage.getItem("token");
+    const accessToken = localStorage.getItem("session_token");
     const resource = await fetch(`https://api.spotify.com/v1/playlists/${id}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -147,7 +197,7 @@ export default function App() {
   }
 
   async function migrateToSpotify(playlistTitle, uriArr) {
-    const accessToken = localStorage.getItem("token");
+    const accessToken = localStorage.getItem("session_token");
 
     let userInfo = await fetch(`https://api.spotify.com/v1/me`, {
       headers: {
@@ -189,12 +239,21 @@ export default function App() {
       ></Script>
       {songsLoaded ? (
         <Stack
+          alignItems={{ md: "stretch" }}
           direction={{ base: "column", md: "row" }}
           p={{ base: 5, md: 4 }}
           pt={{ md: 16 }}
           spacing={{ base: 12, md: 20 }}
         >
-          <Stack flex={1} spacing={6} direction="column" align="left">
+          <Stack
+            top={28}
+            position="sticky"
+            height="100%"
+            flex={1}
+            spacing={6}
+            direction="column"
+            align="left"
+          >
             <chakra.div>
               <Image
                 borderRadius={4}
@@ -216,7 +275,7 @@ export default function App() {
                   {`By ${playlist.owner}`}
                 </Text>
                 <Text fontWeight="300" fontSize="15">
-                  {`${playlist.duration}mins`}
+                  {/* {`${playlist.duration}mins`} */} mins
                 </Text>
               </VStack>
             </Stack>
@@ -224,7 +283,12 @@ export default function App() {
               <Button w="100%" colorScheme="blue" onClick={onExport}>
                 Export
               </Button>
-              <Button w="100%" colorScheme="blue" variant="outline">
+              <Button
+                onClick={() => router.push("/")}
+                w="100%"
+                colorScheme="blue"
+                variant="outline"
+              >
                 Cancel
               </Button>
             </Stack>
@@ -267,7 +331,7 @@ export default function App() {
                   </Stack>
                   <Stack align="center" direction="row">
                     <Text fontWeight={400} fontSize="15">
-                      {item.duration}
+                      {`${item.duration.minutes}:${item.duration.seconds}`}
                     </Text>
                     <IconButton
                       variant="ghost"
@@ -280,9 +344,13 @@ export default function App() {
             })}
           </Stack>
         </Stack>
+      ) : hasError ? (
+        <div>Wahala no dey finish. Try again abeg</div>
       ) : (
-        <div>Nothing here yet</div>
+        <div>Loading playlist...</div>
       )}
     </Container>
   );
 }
+
+// moment().startOf('day').seconds(216).format('HH:mm:ss')
