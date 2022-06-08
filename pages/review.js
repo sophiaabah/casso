@@ -65,7 +65,7 @@ export default function App() {
           setPlatform("deezer");
         });
     }
-  }, []);
+  }, [router]);
 
   function dzScriptInit() {
     global.DZ.init({
@@ -273,9 +273,6 @@ export default function App() {
                 </Text>
                 <Text fontWeight="400" fontSize="17">
                   {`By ${playlist.owner}`}
-                </Text>
-                <Text fontWeight="300" fontSize="15">
-                  {/* {`${playlist.duration}mins`} */} mins
                 </Text>
               </VStack>
             </Stack>

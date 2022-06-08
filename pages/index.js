@@ -25,7 +25,7 @@ import Script from "next/dist/client/script";
 import { useEffect } from "react";
 import password from "secure-random-password";
 import { useState } from "react";
-import PopupWindow, { toQuery } from "./popup";
+import PopupWindow, { toQuery } from "../lib/popup";
 import { useRouter } from "next/router";
 
 var spotifyOauth = {
