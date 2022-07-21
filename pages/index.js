@@ -53,11 +53,6 @@ export default function App() {
     }
   }
 
-  // function spotifyInit() {
-  //   localStorage.setItem("stateKey", spotifyOauth.state);
-  //   window.location = `https://accounts.spotify.com/authorize?response_type=token&client_id=${spotifyOauth.client_id}&scope=${spotifyOauth.scope}&redirect_uri=${spotifyOauth.redirect_uri}&state=${spotifyOauth.state}`;
-  // }
-
   const spotifyLogin = async () => {
     try {
       const data = await PopupWindow.open(

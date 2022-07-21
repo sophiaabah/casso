@@ -78,21 +78,21 @@ export default function App() {
   function onExport() {
     if (platform === "spotify") {
       migrateToSpotify(playlist.title, uriArr)
-        .then(
+        .then(() => {
           toast({
             title: "Migration successful.",
             description: "We've created your playlist for you.",
             status: "success",
-            duration: 7000,
+            duration: 5000,
             isClosable: true,
-          })
-        )
+          });
+        })
         .catch((error) => {
           toast({
             title: "Error.",
             description: error.message,
             status: "error",
-            duration: 9000,
+            duration: 5000,
             isClosable: true,
           });
         });
@@ -175,6 +175,7 @@ export default function App() {
       },
     });
     const parsedResource = await resource.json();
+
     console.log(parsedResource);
 
     const playlistData = {
@@ -199,13 +200,16 @@ export default function App() {
   async function migrateToSpotify(playlistTitle, uriArr) {
     const accessToken = localStorage.getItem("session_token");
 
-    let userInfo = await fetch(`https://api.spotify.com/v1/me`, {
+    let userInfo = await fetch(`https://api.spotify.com/v1/mel`, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${Token}`,
         "Content-Type": "application/json",
       },
     });
     let parsedUserInfo = await userInfo.json();
+    if (parsedUserInfo.error) {
+      throw Error("User authentication for Spotify failed");
+    }
     console.log(parsedUserInfo.id);
 
     const newPlaylistInfo = await fetch(
