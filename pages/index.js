@@ -44,8 +44,8 @@ export default function App() {
     console.log("working with link");
     if (linkInput.trim()) {
       const access_data = await spotifyLogin();
-
       localStorage.setItem("session_token", access_data.access_token);
+
       router.push({
         pathname: "/review",
         query: { pid: linkInput, inputPlatform: platform },

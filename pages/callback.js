@@ -14,7 +14,7 @@ export default function App() {
 
     localStorage.setItem("token", accessToken);
     console.log("this is the access token", accessToken);
-    router.push("/review");
+    // router.push("/review");
   }, [router]);
 
   return <h3>Loading...</h3>;
