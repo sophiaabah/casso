@@ -53,6 +53,12 @@ export default function App() {
     }
   }
 
+  // async function dzLoad() {
+  //   await fetch(
+  //     "https://connect.deezer.com/oauth/auth.php?app_id=YOUR_APP_ID&redirect_uri=YOUR_REDIRECT_URI&perms=basic_access,email"
+  //   );
+  // }
+
   const spotifyLogin = async () => {
     try {
       const data = await PopupWindow.open(
@@ -80,7 +86,6 @@ export default function App() {
       appId: process.env.NEXT_PUBLIC_DEEZER_APP_ID,
       channelUrl: process.env.NEXT_PUBLIC_DEEZER_CHANNEL_URL,
     });
-    console.log("sdk load successful");
   }
 
   function onType(e) {

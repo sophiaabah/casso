@@ -40,29 +40,36 @@ export default function App() {
   const [platform, setPlatform] = useState("");
   const [songsLoaded, setSongsLoaded] = useState(false);
   const [playlist, setPlaylist] = useState({});
-  const [hasError, setHasError] = useState(false);
-  // const [hasError, setHasError] = useState(false);
+  const [error, setError] = useState();
 
   useEffect(() => {
     console.log("query object", router.query.pid);
     if (router.query.inputPlatform === "deezer") {
       exportFromDz(router.query.pid)
         .then(() => {
-          setHasError(false);
+          setError();
+          setPlatform("spotify");
         })
         .catch((error) => {
           console.error(error);
-          setHasError(true);
+
+          if (error.type && error.type === "OAuthException") {
+            setError("Your playlist is private, please use a public playlist.");
+            return;
+          }
+
+          setError(error.message);
         });
       setPlatform("spotify");
     } else if (router.query.inputPlatform === "spotify") {
       exportFromSpotify(router.query.pid)
         .then(() => {
-          setHasError(false);
+          setError();
+          setPlatform("deezer");
         })
         .catch((error) => {
           console.error(error);
-          setPlatform("deezer");
+          setError(error.message);
         });
     }
   }, [router]);
@@ -72,7 +79,7 @@ export default function App() {
       appId: process.env.NEXT_PUBLIC_DEEZER_APP_ID,
       channelUrl: process.env.NEXT_PUBLIC_DEEZER_CHANNEL_URL,
     });
-    console.log("sdk load successful");
+    console.log("sdk load successful", process.env.NEXT_PUBLIC_DEEZER_APP_ID); //ive got some sdk issues here. why php
   }
 
   function onExport() {
@@ -95,6 +102,7 @@ export default function App() {
             duration: 5000,
             isClosable: true,
           });
+          console.log("the error", error.message);
         });
     } else if (platform === "deezer") {
       migrateToDz(playlist.tracks, playlist.title)
@@ -114,14 +122,15 @@ export default function App() {
             status: "error",
             duration: 9000,
             isClosable: true,
-          });
-        });
+          }); //also invalid url. check the format for localhost setting
+        }); //confirmation toast shows before user has a chance to authorize cassos access.
     }
   }
 
   async function exportFromDz(id) {
     console.log("running deezer request");
     const songData = await dzPlaylistRequest(id);
+
     console.log("songData:", songData);
     const playlistData = {
       owner: songData.creator.name,
@@ -200,12 +209,13 @@ export default function App() {
   async function migrateToSpotify(playlistTitle, uriArr) {
     const accessToken = localStorage.getItem("session_token");
 
-    let userInfo = await fetch(`https://api.spotify.com/v1/mel`, {
+    let userInfo = await fetch(`https://api.spotify.com/v1/me`, {
       headers: {
-        Authorization: `Bearer ${Token}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
     });
+    console.log("token", accessToken);
     let parsedUserInfo = await userInfo.json();
     if (parsedUserInfo.error) {
       throw Error("User authentication for Spotify failed");
@@ -238,7 +248,7 @@ export default function App() {
       <div id="dz-root"></div>
       <Script
         src="https://e-cdn-files.dzcdn.net/js/min/dz.js"
-        strategy="afterInteractive"
+        strategy="beforeInteractive"
         onLoad={dzScriptInit}
       ></Script>
       {songsLoaded ? (
@@ -251,7 +261,7 @@ export default function App() {
         >
           <Stack
             top={28}
-            position="sticky"
+            position={{ base: "none", md: "sticky" }}
             height="100%"
             flex={1}
             spacing={6}
@@ -331,9 +341,9 @@ export default function App() {
                     </Stack>
                   </Stack>
                   <Stack align="center" direction="row">
-                    <Text fontWeight={400} fontSize="15">
-                      {`${item.duration.minutes}:${item.duration.seconds}`}
-                    </Text>
+                    {/* <Text fontWeight={400} fontSize="15">
+                      {`${item.duration}`}
+                    </Text> */}
                     <IconButton
                       variant="ghost"
                       fontSize="sm"
@@ -345,13 +355,14 @@ export default function App() {
             })}
           </Stack>
         </Stack>
-      ) : hasError ? (
-        <div>Wahala no dey finish. Try again abeg</div>
+      ) : !!error ? (
+        <Stack spacing={4}>
+          <Heading>Something went wrong.</Heading>
+          <Text>{error}</Text>
+        </Stack>
       ) : (
         <div>Loading playlist...</div>
       )}
     </Container>
   );
 }
-
-// moment().startOf('day').seconds(216).format('HH:mm:ss')
