@@ -103,7 +103,7 @@ export default function App() {
       <Stack height="100vh">
         <VStack
           width={{ md: "45%" }}
-          spacing={6}
+          spacing={4}
           justify="center"
           pt={{ base: 12, lg: 16 }}
           // pl={{ lg: "8rem" }}
@@ -122,9 +122,12 @@ export default function App() {
             Copy your music directly from one streaming platform to another.
           </Text>
           <Text align="center" color="#635252" fontSize="22px">
-            To fetch the songs, we need to know where your playlist is stored
-            and a link to the playlist. {`You'd`} get it by navigating to the
-            “share” option.{" "}
+            To fetch the songs, you need to indicate where your playlist is
+            currently stored and the playlist ID. You can find this at the end
+            of the link to your playlist in the browser.
+          </Text>
+          <Text align="center" color="#635252" fontSize="22px">
+            Also make sure your playlist is set to public so we can access it.
           </Text>
           <ButtonGroup pt={8} pb={8} spacing={8}>
             <IconButton
@@ -151,7 +154,7 @@ export default function App() {
               onChange={onType}
               focusBorderColor="blue.200"
               height={{ base: 12, lg: 16 }}
-              placeholder="Paste your link..."
+              placeholder="Paste your playlist ID..."
             ></Input>
             <Button
               isDisabled={!(platform === "spotify" || platform === "deezer")}
