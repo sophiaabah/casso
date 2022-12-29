@@ -1,10 +1,8 @@
 ## About 
 
-Casso migrates public playlists across two platforms: Deezer and Spotify. 
+Casso migrates any public playlist across two platforms: Deezer and Spotify.
 
-If you want to preview the webpage, please note that Spotify requires users to be registered in Casso's dashboard, before they can use it with their account. 
-
-However, running the app locally with your access token would work normally.
+If you want to preview the webpage, note that Spotify requires users to be registered in Casso's dashboard, before they can use it with their account. 
 
 
 ## How to use 
